@@ -6,6 +6,8 @@ Live site: https://qrfreely.com/
 
 Source code: https://github.com/ComputeFreely/qrfreely.com
 
+Issues and feedback: https://github.com/ComputeFreely/qrfreely.com/issues/new
+
 ## Features
 
 - Create QR codes for URLs, Wi-Fi networks, contacts, email, phone numbers, SMS, calendar events, locations, and plain text.
