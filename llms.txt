@@ -1,0 +1,24 @@
+# QR Freely
+
+QR Freely is a free browser-only QR code generator. It creates QR codes locally for URLs, Wi-Fi networks, vCard contacts, email, phone, SMS, calendar events, geographic locations, and plain text.
+
+## Primary URL
+
+https://qrfreely.com/
+
+## Capabilities
+
+- Generate static QR codes without a hosted redirect.
+- Create QR codes for websites, Wi-Fi, contacts, email, phone, SMS, events, locations, and text.
+- Customize foreground, background, secondary color, finder marker color, dot style, finder style, quiet zone, logo size, border, and label.
+- Download PNG or SVG.
+- Run in the browser with no account, no upload step, and no runtime CDN dependency.
+
+## Limitations
+
+- Users should test printed QR codes, low-contrast colors, transparent backgrounds, and embedded logos with real scanners.
+- Local generation means the browser handles the work.
+
+## Useful search topics
+
+free QR code generator, QR code generator no signup, Wi-Fi QR code generator, vCard QR code maker, QR code PNG download, QR code SVG download, QR code no redirect

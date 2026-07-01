@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Free QR code generator for URLs, Wi-Fi, vCard contacts, email, SMS, events, locations, and text. Create PNG or SVG QR codes locally with no redirects or uploads.">
+    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
+    <meta name="theme-color" content="#f5f4ee">
+    <meta name="application-name" content="QR Freely">
+    <meta property="og:title" content="Free QR Code Generator | QR Freely">
+    <meta property="og:description" content="Create customizable QR codes for websites, Wi-Fi, contacts, events, messages, locations, and text. Browser-only, no redirects, PNG and SVG downloads.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://qrfreely.com/">
+    <meta property="og:site_name" content="QR Freely">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Free QR Code Generator | QR Freely">
+    <meta name="twitter:description" content="Browser-only QR code generator with PNG and SVG downloads, no redirects, and no uploads.">
+    <title>Free QR Code Generator | QR Freely</title>
+    <link rel="canonical" href="https://qrfreely.com/">
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="AI-readable site summary">
+    <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="assets/shared/freely-ui.css">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://computefreely.com/#organization",
+            "name": "Compute Freely",
+            "url": "https://computefreely.com/"
+          },
+          {
+            "@type": "WebApplication",
+            "@id": "https://qrfreely.com/#app",
+            "name": "QR Freely",
+            "url": "https://qrfreely.com/",
+            "description": "A free browser-only QR code generator for URLs, Wi-Fi networks, contacts, email, phone, SMS, calendar events, locations, and text.",
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Any modern browser",
+            "browserRequirements": "Requires JavaScript in a modern browser.",
+            "isAccessibleForFree": true,
+            "publisher": {
+              "@id": "https://computefreely.com/#organization"
+            },
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD",
+              "url": "https://qrfreely.com/"
+            },
+            "featureList": [
+              "URL QR codes",
+              "Wi-Fi QR codes",
+              "vCard contact QR codes",
+              "Email, phone, SMS, event, location, and text payloads",
+              "PNG and SVG downloads",
+              "Local browser generation with no upload step"
+            ]
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://qrfreely.com/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Does QR Freely upload QR code content?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. QR Freely generates the QR code in the browser and does not upload the payload."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I make Wi-Fi and vCard QR codes?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. QR Freely includes presets for Wi-Fi networks, vCard contacts, URLs, email, phone, SMS, events, locations, and plain text."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Does QR Freely add a tracking redirect?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. The encoded payload goes directly into the downloaded QR code."
+                }
+              }
+            ]
+          },
+          {
+            "@type": "BreadcrumbList",
+            "@id": "https://qrfreely.com/#breadcrumb",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Compute Freely",
+                "item": "https://computefreely.com/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "QR Freely",
+                "item": "https://qrfreely.com/"
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="QR Freely home">
+        <img class="brand-mark" src="assets/icons/favicon.svg" alt="" width="40" height="40" aria-hidden="true">
+        <span>
+          <strong>QR Freely</strong>
+          <small>Direct QR codes, generated locally</small>
+        </span>
+      </a>
+      <div class="topbar-actions" aria-label="Site guarantees">
+        <span class="status-pill">Free</span>
+        <span class="status-pill">No redirects</span>
+        <span class="status-pill">No uploads</span>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <section class="preview-pane" aria-labelledby="previewTitle">
+        <div class="preview-header">
+          <div>
+            <p class="eyebrow">Live Preview</p>
+            <h1 id="previewTitle">Build a QR code</h1>
+          </div>
+          <div class="preview-meta" id="qrMeta" aria-live="polite">Ready</div>
+        </div>
+
+        <div class="qr-stage">
+          <div id="qrMount" class="qr-mount" aria-label="Generated QR code preview"></div>
+          <div id="qrError" class="qr-error" role="alert" hidden></div>
+        </div>
+
+        <div class="action-row">
+          <button class="button primary" type="button" id="downloadPng">
+            <span class="button-icon download-icon" aria-hidden="true"></span>
+            PNG
+          </button>
+          <button class="button" type="button" id="downloadSvg">
+            <span class="button-icon code-icon" aria-hidden="true"></span>
+            SVG
+          </button>
+          <button class="button" type="button" id="copyPayload">
+            <span class="button-icon copy-icon" aria-hidden="true"></span>
+            Copy payload
+          </button>
+          <button class="button ghost" type="button" id="resetAll">
+            <span class="button-icon reset-icon" aria-hidden="true"></span>
+            Reset
+          </button>
+        </div>
+
+        <div class="quality-strip" id="qualityStrip" aria-live="polite"></div>
+
+        <label class="payload-label" for="payloadOutput">Encoded payload</label>
+        <textarea id="payloadOutput" class="payload-output" readonly spellcheck="false"></textarea>
+      </section>
+
+      <form id="qrForm" class="control-pane">
+        <section class="panel" aria-labelledby="contentTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Content</p>
+              <h2 id="contentTitle">Destination</h2>
+            </div>
+          </div>
+
+          <div class="type-grid" role="tablist" aria-label="QR code type">
+            <button type="button" class="type-card active" id="type-url" data-type="url" role="tab" aria-selected="true" aria-controls="panel-url" tabindex="0">
+              <span class="type-icon link-icon" aria-hidden="true"></span>
+              Website
+            </button>
+            <button type="button" class="type-card" id="type-wifi" data-type="wifi" role="tab" aria-selected="false" aria-controls="panel-wifi" tabindex="-1">
+              <span class="type-icon wifi-icon" aria-hidden="true"></span>
+              Wi-Fi
+            </button>
+            <button type="button" class="type-card" id="type-contact" data-type="contact" role="tab" aria-selected="false" aria-controls="panel-contact" tabindex="-1">
+              <span class="type-icon contact-icon" aria-hidden="true"></span>
+              Contact
+            </button>
+            <button type="button" class="type-card" id="type-email" data-type="email" role="tab" aria-selected="false" aria-controls="panel-email" tabindex="-1">
+              <span class="type-icon email-icon" aria-hidden="true"></span>
+              Email
+            </button>
+            <button type="button" class="type-card" id="type-phone" data-type="phone" role="tab" aria-selected="false" aria-controls="panel-phone" tabindex="-1">
+              <span class="type-icon phone-icon" aria-hidden="true"></span>
+              Phone
+            </button>
+            <button type="button" class="type-card" id="type-sms" data-type="sms" role="tab" aria-selected="false" aria-controls="panel-sms" tabindex="-1">
+              <span class="type-icon message-icon" aria-hidden="true"></span>
+              SMS
+            </button>
+            <button type="button" class="type-card" id="type-event" data-type="event" role="tab" aria-selected="false" aria-controls="panel-event" tabindex="-1">
+              <span class="type-icon calendar-icon" aria-hidden="true"></span>
+              Event
+            </button>
+            <button type="button" class="type-card" id="type-location" data-type="location" role="tab" aria-selected="false" aria-controls="panel-location" tabindex="-1">
+              <span class="type-icon pin-icon" aria-hidden="true"></span>
+              Location
+            </button>
+            <button type="button" class="type-card" id="type-text" data-type="text" role="tab" aria-selected="false" aria-controls="panel-text" tabindex="-1">
+              <span class="type-icon text-icon" aria-hidden="true"></span>
+              Text
+            </button>
+          </div>
+
+          <div class="payload-panels">
+            <div class="payload-panel active" id="panel-url" data-panel="url" role="tabpanel" aria-labelledby="type-url">
+              <label class="field">
+                <span>Website URL</span>
+                <input type="url" id="urlValue" value="https://qrfreely.com" placeholder="https://example.com">
+              </label>
+            </div>
+
+            <div class="payload-panel" id="panel-wifi" data-panel="wifi" role="tabpanel" aria-labelledby="type-wifi" hidden>
+              <div class="field-grid">
+                <label class="field">
+                  <span>Network name</span>
+                  <input type="text" id="wifiSsid" placeholder="Cafe Wi-Fi">
+                </label>
+                <label class="field">
+                  <span>Security</span>
+                  <select id="wifiSecurity">
+                    <option value="WPA">WPA/WPA2/WPA3</option>
+                    <option value="WEP">WEP</option>
+                    <option value="nopass">No password</option>
+                  </select>
+                </label>
+              </div>
+              <label class="field" id="wifiPasswordField">
+                <span>Password</span>
+                <input type="text" id="wifiPassword" autocomplete="off" placeholder="Network password">
+              </label>
+              <label class="check-field">
+                <input type="checkbox" id="wifiHidden">
+                <span>Hidden network</span>
+              </label>
+            </div>
+
+            <div class="payload-panel" id="panel-contact" data-panel="contact" role="tabpanel" aria-labelledby="type-contact" hidden>
+              <div class="field-grid">
+                <label class="field">
+                  <span>Full name</span>
+                  <input type="text" id="contactName" placeholder="Jane Smith">
+                </label>
+                <label class="field">
+                  <span>Organization</span>
+                  <input type="text" id="contactOrg" placeholder="Acme Studio">
+                </label>
+              </div>
+              <div class="field-grid">
+                <label class="field">
+                  <span>Title</span>
+                  <input type="text" id="contactTitle" placeholder="Creative Director">
+                </label>
+                <label class="field">
+                  <span>Phone</span>
+                  <input type="tel" id="contactPhone" placeholder="+1 555 123 4567">
+                </label>
+              </div>
+              <div class="field-grid">
+                <label class="field">
+                  <span>Email</span>
+                  <input type="email" id="contactEmail" placeholder="jane@example.com">
+                </label>
+                <label class="field">
+                  <span>Website</span>
+                  <input type="url" id="contactUrl" placeholder="https://example.com">
+                </label>
+              </div>
+              <label class="field">
+                <span>Address</span>
+                <input type="text" id="contactAddress" placeholder="123 Main St, Seattle, WA">
+              </label>
+              <label class="field">
+                <span>Note</span>
+                <textarea id="contactNote" rows="3" placeholder="Optional note"></textarea>
+              </label>
+            </div>
+
+            <div class="payload-panel" id="panel-email" data-panel="email" role="tabpanel" aria-labelledby="type-email" hidden>
+              <label class="field">
+                <span>Recipient</span>
+                <input type="email" id="emailTo" placeholder="hello@example.com">
+              </label>
+              <label class="field">
+                <span>Subject</span>
+                <input type="text" id="emailSubject" placeholder="Hello">
+              </label>
+              <label class="field">
+                <span>Message</span>
+                <textarea id="emailBody" rows="4" placeholder="Message body"></textarea>
+              </label>
+            </div>
+
+            <div class="payload-panel" id="panel-phone" data-panel="phone" role="tabpanel" aria-labelledby="type-phone" hidden>
+              <label class="field">
+                <span>Phone number</span>
+                <input type="tel" id="phoneNumber" placeholder="+1 555 123 4567">
+              </label>
+            </div>
+
+            <div class="payload-panel" id="panel-sms" data-panel="sms" role="tabpanel" aria-labelledby="type-sms" hidden>
+              <label class="field">
+                <span>Phone number</span>
+                <input type="tel" id="smsNumber" placeholder="+1 555 123 4567">
+              </label>
+              <label class="field">
+                <span>Message</span>
+                <textarea id="smsMessage" rows="4" placeholder="Text message"></textarea>
+              </label>
+            </div>
+
+            <div class="payload-panel" id="panel-event" data-panel="event" role="tabpanel" aria-labelledby="type-event" hidden>
+              <label class="field">
+                <span>Event title</span>
+                <input type="text" id="eventTitle" placeholder="Launch party">
+              </label>
+              <div class="field-grid">
+                <label class="field">
+                  <span>Starts</span>
+                  <input type="datetime-local" id="eventStart">
+                </label>
+                <label class="field">
+                  <span>Ends</span>
+                  <input type="datetime-local" id="eventEnd">
+                </label>
+              </div>
+              <label class="field">
+                <span>Location</span>
+                <input type="text" id="eventLocation" placeholder="Studio 12">
+              </label>
+              <label class="field">
+                <span>Description</span>
+                <textarea id="eventDescription" rows="4" placeholder="Event details"></textarea>
+              </label>
+            </div>
+
+            <div class="payload-panel" id="panel-location" data-panel="location" role="tabpanel" aria-labelledby="type-location" hidden>
+              <div class="field-grid">
+                <label class="field">
+                  <span>Latitude</span>
+                  <input type="number" id="locationLat" step="any" min="-90" max="90" placeholder="37.7749">
+                </label>
+                <label class="field">
+                  <span>Longitude</span>
+                  <input type="number" id="locationLng" step="any" min="-180" max="180" placeholder="-122.4194">
+                </label>
+              </div>
+              <label class="field">
+                <span>Label</span>
+                <input type="text" id="locationLabel" placeholder="Optional place name">
+              </label>
+            </div>
+
+            <div class="payload-panel" id="panel-text" data-panel="text" role="tabpanel" aria-labelledby="type-text" hidden>
+              <label class="field">
+                <span>Text</span>
+                <textarea id="textValue" rows="6" placeholder="Plain text, coupon code, serial number, or anything else"></textarea>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="styleTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Style</p>
+              <h2 id="styleTitle">Appearance</h2>
+            </div>
+          </div>
+
+          <div class="preset-row" aria-label="Style presets">
+            <button class="preset swatch-ink" type="button" data-preset="ink">Ink</button>
+            <button class="preset swatch-ocean" type="button" data-preset="ocean">Ocean</button>
+            <button class="preset swatch-sunrise" type="button" data-preset="sunrise">Sunrise</button>
+            <button class="preset swatch-forest" type="button" data-preset="forest">Forest</button>
+            <button class="preset swatch-tron" type="button" data-preset="tron">Tron</button>
+          </div>
+
+          <div class="field-grid">
+            <label class="field">
+              <span>Dots</span>
+              <select id="dotStyle">
+                <option value="square">Square</option>
+                <option value="rounded">Rounded</option>
+                <option value="dot">Dot</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Finder markers</span>
+              <select id="eyeStyle">
+                <option value="square">Square</option>
+                <option value="rounded" selected>Rounded</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="field-grid color-grid">
+            <label class="field color-field">
+              <span>Foreground</span>
+              <input type="color" id="foregroundColor" value="#141414">
+            </label>
+            <label class="field color-field">
+              <span>Second color</span>
+              <input type="color" id="gradientColor" value="#0d9488">
+            </label>
+            <label class="field color-field">
+              <span>Background</span>
+              <input type="color" id="backgroundColor" value="#ffffff">
+            </label>
+            <label class="field color-field">
+              <span>Finder color</span>
+              <input type="color" id="eyeColor" value="#111827">
+            </label>
+          </div>
+
+          <div class="field-grid">
+            <label class="check-field">
+              <input type="checkbox" id="useGradient">
+              <span>Gradient dots</span>
+            </label>
+            <label class="check-field">
+              <input type="checkbox" id="transparentBg">
+              <span>Transparent background</span>
+            </label>
+          </div>
+
+          <div class="field-grid">
+            <label class="field">
+              <span>Error correction</span>
+              <select id="errorCorrection">
+                <option value="L">Low</option>
+                <option value="M">Medium</option>
+                <option value="Q">Quartile</option>
+                <option value="H" selected>High</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>QR size</span>
+              <input type="number" id="qrSize" min="256" max="2048" step="64" value="1024">
+            </label>
+          </div>
+
+          <div class="range-grid">
+            <label class="range-field">
+              <span>Quiet zone <strong id="quietZoneValue">4</strong></span>
+              <input type="range" id="quietZone" min="1" max="8" step="1" value="4">
+            </label>
+            <label class="range-field">
+              <span>Logo size <strong id="logoSizeValue">16%</strong></span>
+              <input type="range" id="logoSize" min="8" max="24" step="1" value="16">
+            </label>
+            <label class="range-field" id="logoPaddingField" hidden>
+              <span>Logo padding <strong id="logoPaddingValue">18%</strong></span>
+              <input type="range" id="logoPadding" min="0" max="40" step="1" value="18">
+            </label>
+            <label class="range-field">
+              <span>QR complexity <strong id="qrBoostValue">+0</strong></span>
+              <input type="range" id="qrBoost" min="0" max="8" step="1" value="0">
+            </label>
+          </div>
+
+          <div class="logo-drop">
+            <label class="logo-input" for="logoUpload">
+              <span class="type-icon image-icon" aria-hidden="true"></span>
+              <span>
+                <strong id="logoName">Add logo</strong>
+                <small>PNG, JPG, SVG, or WebP</small>
+              </span>
+              <input type="file" id="logoUpload" accept="image/png,image/jpeg,image/svg+xml,image/webp">
+            </label>
+            <button class="icon-button" id="clearLogo" type="button" aria-label="Remove logo" title="Remove logo">
+              <span class="button-icon close-icon" aria-hidden="true"></span>
+            </button>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="frameTitle">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Frame</p>
+              <h2 id="frameTitle">Border and label</h2>
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <label class="field color-field">
+              <span>Border color</span>
+              <input type="color" id="borderColor" value="#111827">
+            </label>
+            <label class="field color-field">
+              <span>Label color</span>
+              <input type="color" id="labelColor" value="#111827">
+            </label>
+          </div>
+
+          <div class="range-grid">
+            <label class="range-field">
+              <span>Border <strong id="borderWidthValue">18px</strong></span>
+              <input type="range" id="borderWidth" min="0" max="80" step="2" value="18">
+            </label>
+            <label class="range-field">
+              <span>Radius <strong id="borderRadiusValue">28px</strong></span>
+              <input type="range" id="borderRadius" min="0" max="96" step="2" value="28">
+            </label>
+          </div>
+
+          <label class="field">
+            <span>Label</span>
+            <input type="text" id="frameLabel" value="SCAN ME" maxlength="40">
+          </label>
+        </section>
+      </form>
+    </main>
+
+    <section class="discovery-section" aria-labelledby="qrDiscoveryTitle">
+      <div class="discovery-content">
+        <p class="eyebrow">QR code generator</p>
+        <h2 id="qrDiscoveryTitle">Free QR codes without redirects.</h2>
+        <p class="discovery-lede">QR Freely is a free QR code generator for links, Wi-Fi networks, vCard contacts, email, phone numbers, SMS messages, calendar events, geographic locations, and plain text. It creates PNG and SVG QR codes locally in your browser, so there is no account, no upload step, and no tracking redirect.</p>
+        <ul class="search-terms" aria-label="Common QR Freely searches">
+          <li>free QR code generator</li>
+          <li>Wi-Fi QR code generator</li>
+          <li>vCard QR code maker</li>
+          <li>QR code PNG download</li>
+          <li>QR code SVG download</li>
+          <li>QR code generator no signup</li>
+        </ul>
+        <div class="discovery-grid" aria-label="QR Freely capabilities">
+          <article>
+            <h3>Direct payloads</h3>
+            <p>Encode the destination itself, not a hosted redirect URL. Scanners go to the website, Wi-Fi login, contact card, event, location, or message you created.</p>
+          </article>
+          <article>
+            <h3>Local generation</h3>
+            <p>The app builds the QR code in the browser. Your QR content and optional logo image do not need to leave your device.</p>
+          </article>
+          <article>
+            <h3>Export choices</h3>
+            <p>Download PNG for quick use or SVG for scalable print and design workflows. Adjust colors, dot style, finder markers, quiet zone, border, and label.</p>
+          </article>
+        </div>
+        <div class="faq-list" aria-label="QR Freely answers">
+          <article>
+            <h3>Does QR Freely upload QR code content?</h3>
+            <p>No. QR Freely generates the QR code in the browser and does not upload the payload.</p>
+          </article>
+          <article>
+            <h3>Can I make Wi-Fi and vCard QR codes?</h3>
+            <p>Yes. QR Freely includes presets for Wi-Fi networks, vCard contacts, URLs, email, phone, SMS, events, locations, and plain text.</p>
+          </article>
+          <article>
+            <h3>Does QR Freely add a tracking redirect?</h3>
+            <p>No. The encoded payload goes directly into the downloaded QR code.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer suite-footer">
+      <div class="suite-footer-head">
+        <strong>More free local-first browser tools</strong>
+        <span>Freely tools run in your browser when possible, with no accounts, uploads, watermarks, or download gates.</span>
+      </div>
+      <nav class="suite-footer-nav" aria-label="Freely tools">
+        <a class="suite-link" href="https://computefreely.com/"><strong>Compute Freely</strong><span>Free local browser tools</span></a>
+        <a class="suite-link" href="https://qrfreely.com/"><strong>QR Freely</strong><span>Free QR code generator</span></a>
+        <a class="suite-link" href="https://videofreely.com/"><strong>Video Freely</strong><span>Browser video converter</span></a>
+        <a class="suite-link" href="https://pdffreely.com/"><strong>PDF Freely</strong><span>PDF merge, split, and organize</span></a>
+        <a class="suite-link" href="https://fillfreely.com/"><strong>Fill Freely</strong><span>PDF form filler and signer</span></a>
+        <a class="suite-link" href="https://imagefreely.com/"><strong>Image Freely</strong><span>Image editor and bulk converter</span></a>
+      </nav>
+      <nav class="suite-footer-meta" aria-label="Project links">
+        <a href="https://github.com/ComputeFreely/qrfreely.com">Source on GitHub</a>
+        <a href="https://github.com/ComputeFreely/qrfreely.com/issues/new">Report an issue</a>
+        <a href="mailto:info@computefreely.com">info@computefreely.com</a>
+      </nav>
+    </footer>
+
+    <script src="assets/vendor/qrcode.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
