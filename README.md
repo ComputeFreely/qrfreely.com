@@ -4,6 +4,8 @@ QR Freely is a free, browser-only QR code generator.
 
 Live site: https://qrfreely.com/
 
+Source code: https://github.com/ComputeFreely/qrfreely.com
+
 ## Features
 
 - Create QR codes for URLs, Wi-Fi networks, contacts, email, phone numbers, SMS, calendar events, locations, and plain text.
