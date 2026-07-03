@@ -1,0 +1,15 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Cross-Origin-Resource-Policy: same-origin
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+
+# freely-ui.css is updated in place (not fingerprinted); vendor files are
+# unversioned, so cap their cache instead of marking them immutable.
+/assets/shared/*
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/assets/vendor/*
+  Cache-Control: public, max-age=86400

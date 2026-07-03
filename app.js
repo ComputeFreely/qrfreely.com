@@ -1,12 +1,18 @@
 (function () {
   "use strict";
 
+  // Encode Byte-mode payloads as UTF-8 (the library default is Latin-1,
+  // which silently corrupts accented characters, CJK, and emoji).
+  qrcode.stringToBytes = qrcode.stringToBytesFuncs["UTF-8"];
+
   var currentType = "url";
   var logoDataUrl = "";
   var latestSvg = "";
   var latestPayload = "";
   var latestFileBase = "qrfreely-code";
   var renderTimer = 0;
+  var copyStateTimer = 0;
+  var payloadWarnings = [];
   var maxLogoSize = 24;
   var defaultLogoSize = 16;
   var maxLogoPadding = 40;
@@ -59,12 +65,12 @@
       eyeStyle: "rounded"
     },
     tron: {
-      foregroundColor: "#00ffff",
-      gradientColor: "#00c8c8",
-      backgroundColor: "#000011",
-      eyeColor: "#00ff00",
-      borderColor: "#00ffff",
-      labelColor: "#ffbb00",
+      foregroundColor: "#0b3b46",
+      gradientColor: "#086472",
+      backgroundColor: "#d7fbff",
+      eyeColor: "#052e36",
+      borderColor: "#0b3b46",
+      labelColor: "#052e36",
       useGradient: true,
       dotStyle: "square",
       eyeStyle: "rounded"
@@ -197,13 +203,13 @@
     }
 
     if (!/^image\/(png|jpeg|svg\+xml|webp)$/.test(file.type)) {
-      showCopyState("Use PNG, JPG, SVG, or WebP");
+      showError("Logo must be a PNG, JPG, SVG, or WebP image.");
       $("#logoUpload").value = "";
       return;
     }
 
     if (file.size > maxLogoBytes) {
-      showCopyState("Logo max 2 MB");
+      showError("Logo file is too large. The maximum is 2 MB.");
       $("#logoUpload").value = "";
       return;
     }
@@ -280,14 +286,15 @@
       $("#qrMount").innerHTML = latestSvg;
       $("#qrError").hidden = true;
       $("#qrMeta").textContent = matrix.length + " x " + matrix.length + " modules";
+      setActionButtonsEnabled(true);
       renderQuality(payload, matrix.length, options);
     } catch (error) {
       latestSvg = "";
       $("#qrMount").innerHTML = "";
-      $("#qrError").textContent = getErrorMessage(error);
-      $("#qrError").hidden = false;
+      showError(getErrorMessage(error));
       $("#qrMeta").textContent = "Needs input";
       $("#qualityStrip").innerHTML = "";
+      setActionButtonsEnabled(false);
     }
   }
 
@@ -297,6 +304,17 @@
       return "This content is too long for a QR code. Shorten it or use a link.";
     }
     return message || "Unable to generate this QR code.";
+  }
+
+  function showError(message) {
+    $("#qrError").textContent = message;
+    $("#qrError").hidden = false;
+  }
+
+  function setActionButtonsEnabled(enabled) {
+    ["#downloadPng", "#downloadSvg", "#copyPayload"].forEach(function (selector) {
+      $(selector).disabled = !enabled;
+    });
   }
 
   function buildMatrix(qr) {
@@ -343,6 +361,8 @@
   }
 
   function buildPayload(type) {
+    payloadWarnings = [];
+
     if (type === "url") {
       return normalizeUrl($("#urlValue").value);
     }
@@ -353,6 +373,9 @@
       var password = security === "nopass" ? "" : $("#wifiPassword").value;
       if (!ssid) {
         return "";
+      }
+      if (security !== "nopass" && !password) {
+        payloadWarnings.push({ label: "Password is empty", level: "warn" });
       }
       return "WIFI:T:" + security + ";S:" + escapeWifi(ssid) + ";P:" + escapeWifi(password) + ";H:" + ($("#wifiHidden").checked ? "true" : "false") + ";;";
     }
@@ -390,7 +413,7 @@
     if (!trimmed) {
       return "";
     }
-    if (!/^[a-z][a-z0-9+.-]*:/i.test(trimmed)) {
+    if (!/^[a-z][a-z0-9+.-]*:(?![0-9])/i.test(trimmed)) {
       trimmed = "https://" + trimmed;
     }
     return trimmed;
@@ -432,7 +455,7 @@
     }
     addLine(lines, "NOTE", note, escapeVCard);
     lines.push("END:VCARD");
-    return lines.join("\n");
+    return lines.join("\r\n");
   }
 
   function splitName(name) {
@@ -486,7 +509,7 @@
     return value
       .split(",")
       .map(function (part) {
-        return encodeURIComponent(part.trim());
+        return encodeURIComponent(part.trim()).replace(/%40/g, "@");
       })
       .filter(Boolean)
       .join(",");
@@ -516,6 +539,10 @@
       return "";
     }
 
+    if (start && end && end < start) {
+      payloadWarnings.push({ label: "Event ends before it starts", level: "warn" });
+    }
+
     var lines = [
       "BEGIN:VCALENDAR",
       "VERSION:2.0",
@@ -535,7 +562,7 @@
     addLine(lines, "LOCATION", location, escapeIcs);
     addLine(lines, "DESCRIPTION", description, escapeIcs);
     lines.push("END:VEVENT", "END:VCALENDAR");
-    return lines.join("\n");
+    return lines.join("\r\n");
   }
 
   function formatLocalIcsDate(value) {
@@ -820,7 +847,9 @@
     var gradientContrast = options.useGradient ? contrastRatio(options.gradientColor, backgroundForContrast) : dotContrast;
     var eyeContrast = contrastRatio(options.eyeColor, backgroundForContrast);
     var contrast = Math.min(dotContrast, gradientContrast, eyeContrast);
-    var warnings = [];
+    var foregroundLuminance = relativeLuminance(hexToRgb(options.foregroundColor));
+    var backgroundLuminance = relativeLuminance(hexToRgb(backgroundForContrast));
+    var warnings = payloadWarnings.slice();
     var ok = [];
 
     ok.push(moduleCount + " modules");
@@ -829,6 +858,13 @@
     ok.push("EC " + options.errorCorrection);
     if (options.versionBoostApplied > 0) {
       ok.push("Boost +" + options.versionBoostApplied);
+    }
+    if (logoDataUrl) {
+      ok.push("Error correction locked to H while a logo is embedded.");
+    }
+
+    if (foregroundLuminance > backgroundLuminance) {
+      warnings.push({ label: "Inverted colors — many scanners can't read light-on-dark codes.", level: "danger" });
     }
 
     if (contrast < 3.8) {
@@ -843,10 +879,6 @@
 
     if (options.quietZone < 4) {
       warnings.push({ label: "Small quiet zone", level: options.quietZone <= 1 ? "danger" : "warn" });
-    }
-
-    if (logoDataUrl && options.errorCorrection !== "H") {
-      warnings.push({ label: "Use high correction with logos", level: "warn" });
     }
 
     if (logoDataUrl && options.logoSize > 20) {
@@ -908,31 +940,36 @@
     }
 
     var options = getStyleOptions();
-    var scale = Math.max(1, Math.min(3, Math.ceil(1536 / options.size)));
     var svgBlob = new Blob([latestSvg], { type: "image/svg+xml;charset=utf-8" });
     var url = URL.createObjectURL(svgBlob);
     var image = new Image();
     image.onload = function () {
       var viewBox = parseViewBox(latestSvg);
+      // Export at exactly the selected QR size: the PNG width matches the
+      // requested pixel size, with height scaled proportionally.
+      var scale = options.size / viewBox.width;
       var canvas = document.createElement("canvas");
-      canvas.width = Math.round(viewBox.width * scale);
-      canvas.height = Math.round(viewBox.height * scale);
+      canvas.width = Math.max(1, Math.round(viewBox.width * scale));
+      canvas.height = Math.max(1, Math.round(viewBox.height * scale));
       var context = canvas.getContext("2d");
       if (!context) {
         URL.revokeObjectURL(url);
+        showError("PNG export failed. Try the SVG download instead.");
         return;
       }
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
       URL.revokeObjectURL(url);
       canvas.toBlob(function (blob) {
-        if (blob) {
-          downloadBlob(blob, latestFileBase + ".png");
+        if (!blob) {
+          showError("PNG export failed. Try the SVG download instead.");
+          return;
         }
+        downloadBlob(blob, latestFileBase + ".png");
       }, "image/png");
     };
     image.onerror = function () {
       URL.revokeObjectURL(url);
-      showCopyState("PNG export failed");
+      showError("PNG export failed. Try the SVG download instead.");
     };
     image.src = url;
   }
@@ -983,10 +1020,13 @@
 
   function showCopyState(text) {
     var button = $("#copyPayload");
-    var oldText = button.lastChild.nodeValue;
+    if (!button.dataset.label) {
+      button.dataset.label = button.lastChild.nodeValue;
+    }
+    window.clearTimeout(copyStateTimer);
     button.lastChild.nodeValue = " " + text;
-    window.setTimeout(function () {
-      button.lastChild.nodeValue = oldText;
+    copyStateTimer = window.setTimeout(function () {
+      button.lastChild.nodeValue = button.dataset.label;
     }, 1400);
   }
 
@@ -1006,8 +1046,41 @@
 
   function buildFileBase(type, payload) {
     var stamp = new Date().toISOString().slice(0, 10);
-    var hint = payload.replace(/^[a-z][a-z0-9+.-]*:/i, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").slice(0, 36).toLowerCase();
+    // Only use type-specific safe fields for the filename hint so secrets
+    // (like Wi-Fi passwords) never leak into the download name.
+    var hint = slugify(getFileHint(type, payload));
     return "qrfreely-" + type + (hint ? "-" + hint : "") + "-" + stamp;
+  }
+
+  function getFileHint(type, payload) {
+    if (type === "wifi") {
+      return $("#wifiSsid").value.trim();
+    }
+    if (type === "contact") {
+      return $("#contactName").value.trim();
+    }
+    if (type === "event") {
+      return $("#eventTitle").value.trim();
+    }
+    if (type === "email") {
+      var recipient = $("#emailTo").value.trim().split(",")[0] || "";
+      return recipient.split("@")[0].trim() || "email";
+    }
+    if (type === "url") {
+      try {
+        return new URL(payload).hostname;
+      } catch (error) {
+        return "";
+      }
+    }
+    if (type === "text") {
+      return $("#textValue").value.trim().slice(0, 24);
+    }
+    return "";
+  }
+
+  function slugify(value) {
+    return String(value).replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").slice(0, 36).toLowerCase();
   }
 
   function clampNumber(value, min, max, fallback) {

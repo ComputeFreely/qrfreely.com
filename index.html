@@ -12,14 +12,20 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://qrfreely.com/">
     <meta property="og:site_name" content="QR Freely">
-    <meta name="twitter:card" content="summary">
+    <meta property="og:image" content="https://qrfreely.com/assets/og-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Free QR Code Generator | QR Freely">
     <meta name="twitter:description" content="Browser-only QR code generator with PNG and SVG downloads, no redirects, and no uploads.">
+    <meta name="twitter:image" content="https://qrfreely.com/assets/og-card.png">
     <title>Free QR Code Generator | QR Freely</title>
     <link rel="canonical" href="https://qrfreely.com/">
     <link rel="sitemap" type="application/xml" href="/sitemap.xml">
     <link rel="alternate" type="text/plain" href="/llms.txt" title="AI-readable site summary">
     <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="assets/icons/favicon-32.png" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="assets/shared/freely-ui.css">
     <script type="application/ld+json">
@@ -114,7 +120,7 @@
   </head>
   <body>
     <header class="topbar">
-      <a class="brand" href="index.html" aria-label="QR Freely home">
+      <a class="brand" href="/" aria-label="QR Freely home">
         <img class="brand-mark" src="assets/icons/favicon.svg" alt="" width="40" height="40" aria-hidden="true">
         <span>
           <strong>QR Freely</strong>
@@ -131,7 +137,7 @@
         </div>
 
         <div class="qr-stage">
-          <div id="qrMount" class="qr-mount" aria-label="Generated QR code preview"></div>
+          <div id="qrMount" class="qr-mount"></div>
           <div id="qrError" class="qr-error" role="alert" hidden></div>
         </div>
 
